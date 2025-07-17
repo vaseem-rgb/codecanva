@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>CodeCanvas</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Georgia', serif;
+        }
+
+        body {
+            width: 100%;
+            display: flex;
+            height: 100vh;
+            background-color: #fdf6e3;
+            position: relative;
+        }
+
+        .leftpart {
+            flex-basis: 50%;
+            background-color: #001f3f;
+            height: 100%;
+            gap: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content {
+            flex-basis: 33%;
+            background-color: #002b5c;
+            border-radius: 8px;
+            margin: 5px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .rightpart {
+            flex-basis: 50%;
+            background-color: #fdf6e3;
+            height: 100%;
+        }
+
+        .leftpart .content label {
+            background-color: #ffc107;
+            display: flex;
+            align-items: center;
+            color: #001f3f;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .leftpart .content label i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .leftpart .content textarea {
+            width: calc(100% - 20px);
+            outline: none;
+            background-color: #011627;
+            color: #d6d6d6;
+            border: none;
+            padding: 10px;
+            height: calc(82% - 20px);
+            border-radius: 0 0 8px 8px;
+        }
+
+        .rightpart label {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #ffc107;
+            color: #001f3f;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .rightpart iframe {
+            display: block;
+            width: 100%;
+            height: 90%;
+            box-sizing: border-box;
+            border: 2px solid #ffc107;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Toggle Button Styling */
+        .toggle-container {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+
+        .toggle-button {
+            background-color: #ffc107;
+            color: #001f3f;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-button.active {
+            background-color: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="toggle-container">
+        <button class="toggle-button" id="toggleIndent">Auto-Indent: OFF</button>
+    </div>
+    <div class="leftpart">
+        <div class="content">
+            <label><i class="fab fa-html5"></i>HTML</label>
+            <textarea class="code-editor"></textarea>
+        </div>
+        <div class="content">
+            <label><i class="fab fa-css3-alt"></i>CSS</label>
+            <textarea class="code-editor"></textarea>
+        </div>
+        <div class="content">
+            <label><i class="fab fa-js-square"></i>JAVASCRIPT</label>
+            <textarea class="code-editor"></textarea>
+        </div>
+    </div>
+    <div class="rightpart">
+        <label>OUTPUT</label>
+        <iframe id="OUTPUT"></iframe>
+    </div>
+</body>
+<script>
+    let output = document.querySelector("#OUTPUT");
+    let allInput = document.querySelectorAll(".leftpart textarea");
+    let toggleIndent = document.querySelector("#toggleIndent");
+    let autoIndent = false;
+
+    toggleIndent.addEventListener("click", () => {
+        autoIndent = !autoIndent;
+        toggleIndent.textContent = autoIndent ? "Auto-Indent: ON" : "Auto-Indent: OFF";
+        toggleIndent.classList.toggle("active", autoIndent);
+    });
+
+    allInput.forEach((el, index) => {
+        el.addEventListener("keyup", () => {
+            let htmlCode = allInput[0].value;
+            let cssCode = allInput[1].value;
+            let jsCode = allInput[2].value;
+            output.contentDocument.body.innerHTML = htmlCode;
+            output.contentDocument.head.innerHTML = `<style>${cssCode}</style>`;
+            output.contentWindow.eval(jsCode);
+        });
+    });
+
+    allInput.forEach((el) => {
+        el.addEventListener("keydown", (event) => {
+            if (autoIndent && event.key === "Enter") {
+                event.preventDefault();
+                let cursorPos = el.selectionStart;
+                let beforeText = el.value.substring(0, cursorPos);
+                let afterText = el.value.substring(cursorPos);
+                el.value = beforeText + "\n    " + afterText;
+                el.selectionStart = el.selectionEnd = cursorPos + 5;
+            }
+        });
+    });
+</script>
+</html>
